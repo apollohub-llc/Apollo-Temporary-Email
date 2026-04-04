@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Admin Panel</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      color: #333;
+    }
+
+    #clear-inbox-btn {
+      margin: 1rem 0;
+      padding: 0.6rem 1.5rem;
+      background-color: #ffc107;
+      color: #212529;
+      border: none;
+      border-radius: 4px;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+    #clear-inbox-btn:hover {
+      background-color: #e0a800;
+    }
+
+    .delete-btn {
+      margin-top: 0.5rem;
+      padding: 0.3rem 0.8rem;
+      background-color: #dc3545;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .delete-btn:hover {
+      background-color: #bb2d3b;
+    }
+
+    li {
+      margin-bottom: 1rem;
+      padding: 1rem;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      background-color: #f9f9f9;
+    }
+    ul {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    form div {
+      margin-bottom: 1rem;
+    }
+    input[type="text"], textarea {
+      width: 100%;
+      padding: 0.5rem;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+    button[type="submit"] {
+      padding: 0.6rem 1.2rem;
+      background-color: #28a745;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+    button[type="submit"]:hover {
+      background-color: #218838;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <section aria-labelledby="email-section-title">
+      <h2 id="email-section-title">Email Address Textbox</h2>
+      <label for="email-textbox">Email Address:</label>
+      <input type="text" id="email-textbox" name="email-textbox" />
+      <p><small>Changing this text will update the email address box.</small></p>
+    </section>
+
+    <section aria-labelledby="add-mail-section-title">
+      <h2 id="add-mail-section-title">Add Mail</h2>
+      <form id="add-mail-form">
+        <div>
+          <label for="mail-title">Mail Title:</label><br />
+          <input type="text" id="mail-title" name="mail-title" required />
+        </div>
+        <div>
+          <label for="mail-content">Mail Content:</label><br />
+          <textarea id="mail-content" name="mail-content" rows="4" required></textarea>
+        </div>
+        <button type="submit">Add Mail</button>
+      </form>
+    </section>
+
+    <section aria-labelledby="mail-list-title">
+      <h2 id="mail-list-title">Added Mails</h2>
+      <button id="clear-inbox-btn">Clear Entire Inbox</button>
+      <ul id="mail-list" aria-live="polite">
+        <!-- Added mails will appear here -->
+      </ul>
+    </section>
+  </main>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+    import { getDatabase, ref, set, push, onValue, remove, onChildRemoved } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyD-WF53vjG-22Zdt8ZaQMVmMB4XRhB5IDg",
+      authDomain: "temp-email-aeea9.firebaseapp.com",
+      databaseURL: "https://temp-email-aeea9-default-rtdb.firebaseio.com",
+      projectId: "temp-email-aeea9",
+      storageBucket: "temp-email-aeea9.firebasestorage.app",
+      messagingSenderId: "277065724504",
+      appId: "1:277065724504:web:4b11571de5990e09c3d02d",
+      measurementId: "G-VPHN0FYHEV"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const database = getDatabase(app);
+
+    const emailRef = ref(database, 'userEmail');
+    const mailsRef = ref(database, 'messages');
+
+    const emailTextbox = document.getElementById('email-textbox');
+    const addMailForm = document.getElementById('add-mail-form');
+    const mailTitleInput = document.getElementById('mail-title');
+    const mailContentInput = document.getElementById('mail-content');
+    const mailList = document.getElementById('mail-list');
+    const clearInboxBtn = document.getElementById('clear-inbox-btn');
+
+    // --------------------------
+    // FIX: Load ALL existing mails on page load/update
+    // --------------------------
+    onValue(mailsRef, (snapshot) => {
+      // Clear list first to avoid duplicates
+      mailList.innerHTML = "";
+
+      // Loop through EVERY mail in the database
+      snapshot.forEach((childSnapshot) => {
+        const mailId = childSnapshot.key;
+        const mailData = childSnapshot.val();
+        
+        // Only display valid mails
+        if (mailData && mailData.title && mailData.content) {
+          displayMail(mailId, mailData.title, mailData.content);
+        }
+      });
+    });
+
+    // Sync deletions from other sources
+    onChildRemoved(mailsRef, (snapshot) => {
+      const deletedMailId = snapshot.key;
+      const listItem = document.querySelector(`li[data-mail-id="${deletedMailId}"]`);
+      if (listItem) listItem.remove();
+    });
+
+    // Load email address
+    onValue(emailRef, (snapshot) => {
+      emailTextbox.value = snapshot.val() || "";
+    });
+
+    // Update email in DB
+    emailTextbox.addEventListener('input', () => {
+      const newEmail = emailTextbox.value.trim();
+      set(emailRef, newEmail);
+    });
+
+    // Add new mail
+    addMailForm.addEventListener('submit', (event) => {
+      event.preventDefault();
+      
+      const title = mailTitleInput.value.trim();
+      const content = mailContentInput.value.trim();
+
+      if (title && content) {
+        push(mailsRef, {
+          title: title,
+          content: content,
+          timestamp: Date.now()
+        }).then(() => {
+          mailTitleInput.value = '';
+          mailContentInput.value = '';
+        }).catch((error) => {
+          console.error('Error adding mail:', error);
+          alert('Failed to add mail - please try again');
+        });
+      } else {
+        alert('Please fill out both title and content!');
+      }
+    });
+
+    // Display single mail
+    function displayMail(mailId, title, content) {
+      const listItem = document.createElement('li');
+      listItem.dataset.mailId = mailId;
+
+      const mailTitle = document.createElement('h3');
+      mailTitle.textContent = title;
+      listItem.appendChild(mailTitle);
+
+      const mailContent = document.createElement('p');
+      mailContent.textContent = content;
+      listItem.appendChild(mailContent);
+
+      const deleteBtn = document.createElement('button');
+      deleteBtn.textContent = 'Delete Mail';
+      deleteBtn.classList.add('delete-btn');
+      deleteBtn.addEventListener('click', () => deleteMail(mailId));
+      listItem.appendChild(deleteBtn);
+
+      mailList.appendChild(listItem);
+    }
+
+    // Delete single mail
+    function deleteMail(mailId) {
+      if (!confirm('Delete this mail?')) return;
+      
+      const mailToDeleteRef = ref(database, `messages/${mailId}`);
+      remove(mailToDeleteRef)
+        .catch((error) => {
+          console.error('Error deleting mail:', error);
+          alert('Failed to delete mail - please try again');
+        });
+    }
+
+    // Clear entire inbox
+    function clearEntireInbox() {
+      if (!confirm('WARNING: This will DELETE ALL MESSAGES PERMANENTLY. Are you SURE?')) return;
+      
+      remove(mailsRef)
+        .then(() => {
+          mailList.innerHTML = "";
+          alert('Inbox cleared successfully!');
+        })
+        .catch((error) => {
+          console.error('Error clearing inbox:', error);
+          alert('Failed to clear inbox - please try again');
+        });
+    }
+
+    clearInboxBtn.addEventListener('click', clearEntireInbox);
+  </script>
+</body>
+</html>
