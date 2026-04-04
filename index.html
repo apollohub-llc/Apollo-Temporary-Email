@@ -13,6 +13,7 @@
       --text: #f8fafc;
       --text-muted: #94a3b8;
       --border: rgba(255, 140, 0, 0.3);
+      --success: #22c55e;
     }
 
     body {
@@ -42,10 +43,18 @@
 
     .container { max-width: 650px; margin: 0 auto; }
 
-    #countdown-timer {
+    .top-stats {
       position: fixed;
       top: 1rem;
       right: 1rem;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 0.5rem;
+      z-index: 100;
+    }
+
+    #countdown-timer {
       padding: 0.6rem 1.2rem;
       background: var(--primary);
       color: #000;
@@ -53,7 +62,32 @@
       font-weight: 800;
       font-size: 0.9rem;
       box-shadow: 0 0 15px var(--primary-glow);
-      z-index: 100;
+    }
+
+    .active-users {
+      background: rgba(0, 0, 0, 0.5);
+      padding: 0.4rem 0.8rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      border: 1px solid var(--border);
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--success);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--success);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 1; }
+      50% { opacity: 0.5; }
+      100% { opacity: 1; }
     }
 
     .email-section { text-align: center; margin-bottom: 3rem; }
@@ -144,7 +178,13 @@
     <p>Refresh to generate a new session.</p>
   </div>
 
-  <div id="countdown-timer">Syncing...</div>
+  <div class="top-stats">
+    <div id="countdown-timer">Syncing...</div>
+    <div class="active-users">
+      <div class="status-dot"></div>
+      <span id="user-count">0</span> online
+    </div>
+  </div>
 
   <main class="container">
     <h1 class="brand-name">Apollo</h1>
@@ -160,7 +200,7 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
-    import { getDatabase, ref, onChildAdded, onValue, set, get } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js";
+    import { getDatabase, ref, onChildAdded, onValue, set, push, onDisconnect } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyD-WF53vjG-22Zdt8ZaQMVmMB4XRhB5IDg",
@@ -178,17 +218,32 @@
     const timerRef = ref(db, 'system/expiryTime');
     const emailRef = ref(db, 'userEmail');
     const msgsRef = ref(db, 'messages');
+    const presenceRef = ref(db, 'system/presence');
+    const connectedRef = ref(db, '.info/connected');
 
     const timerDisplay = document.getElementById('countdown-timer');
     const emailDisplay = document.getElementById('email-display');
     const messagesContainer = document.getElementById('messages');
     const overlay = document.getElementById('expiry-overlay');
+    const userCountDisplay = document.getElementById('user-count');
+
+    // Presence Logic
+    onValue(connectedRef, (snap) => {
+      if (snap.val() === true) {
+        const con = push(presenceRef);
+        onDisconnect(con).remove();
+        set(con, true);
+      }
+    });
+
+    onValue(presenceRef, (snap) => {
+      userCountDisplay.textContent = snap.size || 0;
+    });
 
     // Timer Logic: Persistent and Real-time
     onValue(timerRef, (snapshot) => {
       let expiry = snapshot.val();
       
-      // If no timer exists in DB, create one for 24 hours from now
       if (!expiry) {
         expiry = Date.now() + (24 * 60 * 60 * 1000);
         set(timerRef, expiry);
