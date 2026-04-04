@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Reactive Real-Time Inbox</title>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --bg: #f8fafc;
+      --text: #1e293b;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      margin: 0;
+      padding: 2rem 1rem;
+      background-color: var(--bg);
+      color: var(--text);
+    }
+
+    /* Blue Screen Overlay */
+    #expiry-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: #0078d4;
+      color: white;
+      z-index: 9999;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      font-family: "Segoe UI", Tahoma, sans-serif;
+    }
+
+    .container { max-width: 650px; margin: 0 auto; }
+
+    #countdown-timer {
+      position: fixed;
+      top: 1rem;
+      right: 1rem;
+      padding: 0.6rem 1.2rem;
+      background: var(--text);
+      color: white;
+      border-radius: 50px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      z-index: 100;
+    }
+
+    .email-section { text-align: center; margin-bottom: 3rem; }
+    .email-label { font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 0.5rem; }
+    
+    .email-box {
+      display: inline-block;
+      padding: 0.8rem 1.5rem;
+      background: #fff;
+      border: 2px dashed var(--primary);
+      border-radius: 12px;
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--primary);
+      cursor: pointer;
+    }
+
+    .inbox {
+      background: #fff;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05);
+      overflow: hidden;
+    }
+
+    .inbox-header {
+      padding: 1.25rem;
+      margin: 0;
+      font-size: 1.2rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .message {
+      padding: 1.25rem;
+      border-bottom: 1px solid var(--border);
+      transition: background 0.2s;
+    }
+
+    .message:hover { background: #f1f5f9; }
+    .message strong { display: block; margin-bottom: 0.3rem; }
+    .message-content { color: var(--text-muted); font-size: 0.95rem; }
+    
+    .message-time { 
+      display: block; 
+      margin-top: 0.8rem; 
+      font-size: 0.75rem; 
+      color: #94a3b8; 
+    }
+
+    @media (max-width: 500px) {
+      #countdown-timer { top: auto; bottom: 1rem; right: 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="expiry-overlay">
+    <h1 style="font-size: 5rem; margin: 0;">:(</h1>
+    <p style="font-size: 1.5rem;">New Email Waiting...</p>
+    <p>The timer has expired. Refresh or update database to continue.</p>
+  </div>
+
+  <div id="countdown-timer">Syncing...</div>
+
+  <main class="container">
+    <div class="email-section">
+      <span class="email-label">YOUR TEMP ADDRESS</span>
+      <div class="email-box" id="email-display">Loading...</div>
+    </div>
+
+    <section id="messages" class="inbox">
+      <h2 class="inbox-header">Inbox</h2>
+    </section>
+  </main>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+    import { getDatabase, ref, onChildAdded, onValue, set } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyD-WF53vjG-22Zdt8ZaQMVmMB4XRhB5IDg",
+      authDomain: "temp-email-aeea9.firebaseapp.com",
+      databaseURL: "https://temp-email-aeea9-default-rtdb.firebaseio.com",
+      projectId: "temp-email-aeea9",
+      storageBucket: "temp-email-aeea9.firebasestorage.app",
+      messagingSenderId: "277065724504",
+      appId: "1:277065724504:web:4b11571de5990e09c3d02d"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    const timerRef = ref(db, 'system/expiryTime');
+    const emailRef = ref(db, 'userEmail');
+    const msgsRef = ref(db, 'messages');
+
+    const timerDisplay = document.getElementById('countdown-timer');
+    const emailDisplay = document.getElementById('email-display');
+    const messagesContainer = document.getElementById('messages');
+    const overlay = document.getElementById('expiry-overlay');
+
+    // Function to restart the 24h clock in Firebase
+    function resetTimer() {
+      const newExpiry = Date.now() + (24 * 60 * 60 * 1000);
+      set(timerRef, newExpiry);
+      overlay.style.display = 'none';
+    }
+
+    // --- TIMER LOGIC ---
+    onValue(timerRef, (snapshot) => {
+      let expiry = snapshot.val();
+      if (!expiry) { resetTimer(); return; }
+
+      if (window.tick) clearInterval(window.tick);
+
+      window.tick = setInterval(() => {
+        const diff = expiry - Date.now();
+        if (diff <= 0) {
+          clearInterval(window.tick);
+          timerDisplay.textContent = "Expired";
+          overlay.style.display = 'flex';
+          alert("New Email Waiting...");
+          return;
+        }
+        const h = Math.floor(diff / 3600000).toString().padStart(2, '0');
+        const m = Math.floor((diff % 3600000) / 60000).toString().padStart(2, '0');
+        const s = Math.floor((diff % 60000) / 1000).toString().padStart(2, '0');
+        timerDisplay.textContent = `⏱️ ${h}:${m}:${s}`;
+      }, 1000);
+    });
+
+    // --- EMAIL UPDATE DETECTED ---
+    onValue(emailRef, (snap) => {
+      emailDisplay.textContent = snap.val() || "waiting...";
+      resetTimer(); 
+    });
+
+    // --- NEW MESSAGE DETECTED ---
+    onChildAdded(msgsRef, (snap) => {
+      const data = snap.val();
+      const msgCard = document.createElement('article');
+      msgCard.className = 'message';
+      
+      // RESTORED TIMESTAMP FEATURE
+      const timeStr = data.timestamp ? new Date(data.timestamp).toLocaleString() : new Date().toLocaleString();
+
+      msgCard.innerHTML = `
+        <strong>${data.title || 'No Subject'}</strong>
+        <div class="message-content">${data.content || ''}</div>
+        <span class="message-time">📅 Sent: ${timeStr}</span>
+      `;
+      
+      const header = messagesContainer.querySelector('.inbox-header');
+      messagesContainer.insertBefore(msgCard, header.nextSibling);
+      
+      resetTimer(); // Restart timer because "something changed"
+    });
+
+    // Copy to clipboard
+    emailDisplay.onclick = () => {
+      navigator.clipboard.writeText(emailDisplay.textContent);
+      const original = emailDisplay.textContent;
+      emailDisplay.textContent = "Copied!";
+      setTimeout(() => emailDisplay.textContent = original, 1000);
+    };
+  </script>
+</body>
+</html>
