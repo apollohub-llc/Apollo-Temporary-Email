@@ -3,37 +3,42 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Reactive Real-Time Inbox</title>
+  <title>Apollo Temporary Email</title>
   <style>
     :root {
-      --primary: #2563eb;
-      --bg: #f8fafc;
-      --text: #1e293b;
-      --text-muted: #64748b;
-      --border: #e2e8f0;
+      --primary: #ff8c00; /* Dark Orange */
+      --primary-glow: rgba(255, 140, 0, 0.4);
+      --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1e1e 100%);
+      --card-bg: rgba(30, 41, 59, 0.7);
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --border: rgba(255, 140, 0, 0.3);
     }
 
     body {
       font-family: 'Inter', -apple-system, sans-serif;
       margin: 0;
       padding: 2rem 1rem;
-      background-color: var(--bg);
+      background: var(--bg-gradient);
+      background-attachment: fixed;
       color: var(--text);
+      min-height: 100vh;
     }
 
-    /* Blue Screen Overlay */
+    /* Blue Screen Overlay (Now Dark Mode styled) */
     #expiry-overlay {
       display: none;
       position: fixed;
       top: 0; left: 0; width: 100%; height: 100%;
-      background: #0078d4;
-      color: white;
+      background: rgba(0, 0, 0, 0.95);
+      color: var(--primary);
       z-index: 9999;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       text-align: center;
       font-family: "Segoe UI", Tahoma, sans-serif;
+      backdrop-filter: blur(10px);
     }
 
     .container { max-width: 650px; margin: 0 auto; }
@@ -43,60 +48,100 @@
       top: 1rem;
       right: 1rem;
       padding: 0.6rem 1.2rem;
-      background: var(--text);
-      color: white;
+      background: var(--primary);
+      color: #000;
       border-radius: 50px;
-      font-weight: 700;
+      font-weight: 800;
       font-size: 0.9rem;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      box-shadow: 0 0 15px var(--primary-glow);
       z-index: 100;
     }
 
     .email-section { text-align: center; margin-bottom: 3rem; }
-    .email-label { font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 0.5rem; }
+    .email-label { 
+      font-size: 0.8rem; 
+      color: var(--primary); 
+      letter-spacing: 2px; 
+      display: block; 
+      margin-bottom: 0.7rem; 
+      font-weight: bold;
+    }
     
     .email-box {
       display: inline-block;
-      padding: 0.8rem 1.5rem;
-      background: #fff;
-      border: 2px dashed var(--primary);
+      padding: 1rem 2rem;
+      background: var(--card-bg);
+      border: 2px solid var(--primary);
       border-radius: 12px;
-      font-size: 1.3rem;
+      font-size: 1.5rem;
       font-weight: 700;
-      color: var(--primary);
+      color: var(--text);
       cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 0 10px rgba(0,0,0,0.5);
+      position: relative;
+    }
+
+    .email-box:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 0 25px var(--primary-glow);
+      border-color: #ffbd69;
     }
 
     .inbox {
-      background: #fff;
+      background: var(--card-bg);
       border-radius: 16px;
       border: 1px solid var(--border);
-      box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
       overflow: hidden;
+      backdrop-filter: blur(5px);
     }
 
     .inbox-header {
-      padding: 1.25rem;
+      padding: 1.5rem;
       margin: 0;
-      font-size: 1.2rem;
+      font-size: 1.4rem;
+      color: var(--primary);
       border-bottom: 1px solid var(--border);
+      background: rgba(0,0,0,0.2);
     }
 
     .message {
       padding: 1.25rem;
       border-bottom: 1px solid var(--border);
-      transition: background 0.2s;
+      transition: all 0.2s;
+      cursor: default;
     }
 
-    .message:hover { background: #f1f5f9; }
-    .message strong { display: block; margin-bottom: 0.3rem; }
-    .message-content { color: var(--text-muted); font-size: 0.95rem; }
+    .message:hover { 
+      background: rgba(255, 140, 0, 0.05); 
+      padding-left: 1.5rem;
+    }
+
+    .message strong { 
+      display: block; 
+      margin-bottom: 0.3rem; 
+      color: #fff;
+      font-size: 1.1rem;
+    }
+
+    .message-content { color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; }
     
     .message-time { 
       display: block; 
       margin-top: 0.8rem; 
       font-size: 0.75rem; 
-      color: #94a3b8; 
+      color: var(--primary); 
+      opacity: 0.8;
+    }
+
+    h1.brand-name {
+        text-align: center;
+        font-size: 2.5rem;
+        background: linear-gradient(to right, #ff8c00, #ffbd69);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 0.5rem;
     }
 
     @media (max-width: 500px) {
@@ -107,22 +152,23 @@
 <body>
 
   <div id="expiry-overlay">
-    <h1 style="font-size: 5rem; margin: 0;">:(</h1>
-    <p style="font-size: 1.5rem;">New Email Waiting...</p>
-    <p>The timer has expired. Refresh or update database to continue.</p>
+    <h1 style="font-size: 5rem; margin: 0;">⌛</h1>
+    <p style="font-size: 1.5rem;">Session Expired</p>
+    <p>Refresh to generate a new Apollo session.</p>
   </div>
 
   <div id="countdown-timer">Syncing...</div>
 
   <main class="container">
+    <h1 class="brand-name">Apollo</h1>
     <div class="email-section">
-      <span class="email-label">YOUR TEMP ADDRESS</span>
+      <span class="email-label">YOUR TEMPORARY ADDRESS</span>
       <div class="email-box" id="email-display">Loading...</div>
     </div>
 
     <section id="messages" class="inbox">
       <h2 class="inbox-header">Inbox</h2>
-    </section>
+      </section>
   </main>
 
   <script type="module">
@@ -151,14 +197,12 @@
     const messagesContainer = document.getElementById('messages');
     const overlay = document.getElementById('expiry-overlay');
 
-    // Function to restart the 24h clock in Firebase
     function resetTimer() {
       const newExpiry = Date.now() + (24 * 60 * 60 * 1000);
       set(timerRef, newExpiry);
       overlay.style.display = 'none';
     }
 
-    // --- TIMER LOGIC ---
     onValue(timerRef, (snapshot) => {
       let expiry = snapshot.val();
       if (!expiry) { resetTimer(); return; }
@@ -171,7 +215,6 @@
           clearInterval(window.tick);
           timerDisplay.textContent = "Expired";
           overlay.style.display = 'flex';
-          alert("New Email Waiting...");
           return;
         }
         const h = Math.floor(diff / 3600000).toString().padStart(2, '0');
@@ -181,34 +224,30 @@
       }, 1000);
     });
 
-    // --- EMAIL UPDATE DETECTED ---
     onValue(emailRef, (snap) => {
       emailDisplay.textContent = snap.val() || "waiting...";
       resetTimer(); 
     });
 
-    // --- NEW MESSAGE DETECTED ---
     onChildAdded(msgsRef, (snap) => {
       const data = snap.val();
       const msgCard = document.createElement('article');
       msgCard.className = 'message';
       
-      // RESTORED TIMESTAMP FEATURE
       const timeStr = data.timestamp ? new Date(data.timestamp).toLocaleString() : new Date().toLocaleString();
 
       msgCard.innerHTML = `
         <strong>${data.title || 'No Subject'}</strong>
         <div class="message-content">${data.content || ''}</div>
-        <span class="message-time">📅 Sent: ${timeStr}</span>
+        <span class="message-time">📅 ${timeStr}</span>
       `;
       
       const header = messagesContainer.querySelector('.inbox-header');
       messagesContainer.insertBefore(msgCard, header.nextSibling);
       
-      resetTimer(); // Restart timer because "something changed"
+      resetTimer();
     });
 
-    // Copy to clipboard
     emailDisplay.onclick = () => {
       navigator.clipboard.writeText(emailDisplay.textContent);
       const original = emailDisplay.textContent;
