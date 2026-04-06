@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Apollo Temporary Email</title>
+  <title>Apollo Temp Email - Auto Inbox</title>
   <style>
     :root {
       --primary: #ff8c00;
@@ -16,285 +16,457 @@
       --success: #22c55e;
     }
 
-    body {
-      font-family: 'Inter', -apple-system, sans-serif;
+    * {
       margin: 0;
-      padding: 2rem 1rem;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       background: var(--bg-gradient);
       background-attachment: fixed;
       color: var(--text);
       min-height: 100vh;
+      padding: 1rem;
     }
 
-    #expiry-overlay {
-      display: none;
-      position: fixed;
-      top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0, 0, 0, 0.95);
-      color: var(--primary);
-      z-index: 9999;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    /* Header */
+    .header {
       text-align: center;
-      font-family: "Segoe UI", Tahoma, sans-serif;
+      margin-bottom: 2rem;
+    }
+
+    h1 {
+      font-size: 3rem;
+      background: linear-gradient(135deg, #ff8c00, #ffbd69, #ffa500);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0.5rem;
+    }
+
+    .subtitle {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    /* Email Display */
+    .email-section {
+      background: var(--card-bg);
+      border-radius: 16px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      border: 1px solid var(--border);
       backdrop-filter: blur(10px);
     }
 
-    .container { max-width: 650px; margin: 0 auto; }
-
-    .top-stats {
-      position: fixed;
-      top: 1rem;
-      right: 1rem;
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-      gap: 0.5rem;
-      z-index: 100;
-    }
-
-    #countdown-timer {
-      padding: 0.6rem 1.2rem;
-      background: var(--primary);
-      color: #000;
-      border-radius: 50px;
-      font-weight: 800;
-      font-size: 0.9rem;
-      box-shadow: 0 0 15px var(--primary-glow);
-    }
-
-    .active-users {
-      background: rgba(0, 0, 0, 0.5);
-      padding: 0.4rem 0.8rem;
-      border-radius: 20px;
+    .email-label {
       font-size: 0.75rem;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      border: 1px solid var(--border);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--primary);
+      display: block;
+      margin-bottom: 0.5rem;
     }
 
-    .status-dot {
-      width: 8px;
-      height: 8px;
-      background: var(--success);
-      border-radius: 50%;
-      box-shadow: 0 0 8px var(--success);
-      animation: pulse 2s infinite;
-    }
-
-    @keyframes pulse {
-      0% { opacity: 1; }
-      50% { opacity: 0.5; }
-      100% { opacity: 1; }
-    }
-
-    .email-section { text-align: center; margin-bottom: 3rem; }
-    .email-label { 
-      font-size: 0.8rem; 
-      color: var(--primary); 
-      letter-spacing: 2px; 
-      display: block; 
-      margin-bottom: 0.7rem; 
-      font-weight: bold;
-    }
-    
     .email-box {
-      display: inline-block;
-      padding: 1rem 2rem;
-      background: var(--card-bg);
-      border: 2px solid var(--primary);
+      background: rgba(0, 0, 0, 0.3);
+      padding: 1rem;
       border-radius: 12px;
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: var(--text);
+      font-size: 1.2rem;
+      font-weight: 600;
+      font-family: monospace;
+      word-break: break-all;
       cursor: pointer;
-      transition: all 0.3s ease;
-      box-shadow: 0 0 10px rgba(0,0,0,0.5);
+      transition: all 0.2s;
+      border: 1px solid transparent;
     }
 
     .email-box:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 0 25px var(--primary-glow);
-      border-color: #ffbd69;
+      border-color: var(--primary);
+      background: rgba(255, 140, 0, 0.1);
     }
 
+    .copy-hint {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      text-align: center;
+      margin-top: 0.5rem;
+    }
+
+    /* Controls */
+    .controls {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      justify-content: center;
+    }
+
+    button {
+      background: var(--primary);
+      color: #000;
+      border: none;
+      padding: 0.6rem 1.2rem;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 0.9rem;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px var(--primary-glow);
+    }
+
+    .refresh-btn {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--text);
+    }
+
+    /* Inbox */
     .inbox {
       background: var(--card-bg);
       border-radius: 16px;
       border: 1px solid var(--border);
-      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
       overflow: hidden;
-      backdrop-filter: blur(5px);
+      backdrop-filter: blur(10px);
     }
 
     .inbox-header {
-      padding: 1.5rem;
-      margin: 0;
-      font-size: 1.4rem;
-      color: var(--primary);
+      padding: 1rem 1.5rem;
+      background: rgba(0, 0, 0, 0.3);
       border-bottom: 1px solid var(--border);
-      background: rgba(0,0,0,0.2);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .inbox-header h2 {
+      font-size: 1.2rem;
+      color: var(--primary);
+    }
+
+    .status {
+      font-size: 0.8rem;
+      color: var(--text-muted);
     }
 
     .message {
-      padding: 1.25rem;
+      padding: 1rem 1.5rem;
       border-bottom: 1px solid var(--border);
       transition: all 0.2s;
+      cursor: pointer;
     }
 
-    .message:hover { background: rgba(255, 140, 0, 0.05); }
-
-    .message strong { 
-      display: block; 
-      margin-bottom: 0.3rem; 
-      color: #fff;
+    .message:hover {
+      background: rgba(255, 140, 0, 0.05);
     }
 
-    .message-content { color: var(--text-muted); font-size: 0.95rem; }
-    
-    .message-time { 
-      display: block; 
-      margin-top: 0.8rem; 
-      font-size: 0.75rem; 
-      color: var(--primary); 
+    .message-subject {
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 0.3rem;
     }
 
-    h1.brand-name {
-        text-align: center;
-        font-size: 2.5rem;
-        background: linear-gradient(to right, #ff8c00, #ffbd69);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
+    .message-preview {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 0.3rem;
+    }
+
+    .message-meta {
+      display: flex;
+      gap: 1rem;
+      font-size: 0.7rem;
+      color: var(--primary);
+    }
+
+    .empty-inbox {
+      padding: 3rem;
+      text-align: center;
+      color: var(--text-muted);
+    }
+
+    /* Modal for full email */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.95);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+      padding: 1rem;
+    }
+
+    .modal-content {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      max-width: 600px;
+      width: 100%;
+      max-height: 80vh;
+      overflow-y: auto;
+      padding: 1.5rem;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .close-modal {
+      background: none;
+      font-size: 1.5rem;
+      padding: 0;
+      color: var(--text);
+    }
+
+    .modal-body {
+      line-height: 1.6;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .loading {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid var(--primary);
+      border-top-color: transparent;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
     }
   </style>
 </head>
 <body>
-
-  <div id="expiry-overlay">
-    <h1 style="font-size: 5rem; margin: 0;">⌛</h1>
-    <p style="font-size: 1.5rem;">Session Expired</p>
-    <p>Refresh to generate a new session.</p>
-  </div>
-
-  <div class="top-stats">
-    <div id="countdown-timer">Syncing...</div>
-    <div class="active-users">
-      <div class="status-dot"></div>
-      <span id="user-count">0</span> online
+  <div class="container">
+    <div class="header">
+      <h1>⚡ APOLLO</h1>
+      <p class="subtitle">Temporary Email • Auto-refreshing Inbox</p>
     </div>
-  </div>
 
-  <main class="container">
-    <h1 class="brand-name">Apollo</h1>
     <div class="email-section">
-      <span class="email-label">YOUR TEMPORARY ADDRESS</span>
-      <div class="email-box" id="email-display">Loading...</div>
+      <span class="email-label">📧 YOUR TEMPORARY EMAIL</span>
+      <div class="email-box" id="emailDisplay">Loading...</div>
+      <div class="copy-hint">✨ Click to copy</div>
     </div>
 
-    <section id="messages" class="inbox">
-      <h2 class="inbox-header">Inbox</h2>
-    </section>
-  </main>
+    <div class="controls">
+      <button id="refreshBtn" class="refresh-btn">🔄 Refresh Inbox</button>
+      <button id="newEmailBtn">✨ New Email Address</button>
+    </div>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
-    import { getDatabase, ref, onChildAdded, onValue, set, push, onDisconnect } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js";
+    <div class="inbox">
+      <div class="inbox-header">
+        <h2>📬 Inbox</h2>
+        <span class="status" id="inboxStatus">Waiting for emails...</span>
+      </div>
+      <div id="messagesContainer">
+        <div class="empty-inbox">📭 No emails yet. Send a test message!</div>
+      </div>
+    </div>
+  </div>
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyD-WF53vjG-22Zdt8ZaQMVmMB4XRhB5IDg",
-      authDomain: "temp-email-aeea9.firebaseapp.com",
-      databaseURL: "https://temp-email-aeea9-default-rtdb.firebaseio.com",
-      projectId: "temp-email-aeea9",
-      storageBucket: "temp-email-aeea9.firebasestorage.app",
-      messagingSenderId: "277065724504",
-      appId: "1:277065724504:web:4b11571de5990e09c3d02d"
-    };
+  <!-- Modal for full email -->
+  <div id="emailModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <strong id="modalSubject">Subject</strong>
+        <button class="close-modal" id="closeModal">✕</button>
+      </div>
+      <div class="modal-body" id="modalBody"></div>
+    </div>
+  </div>
 
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
+  <script>
+    let currentSid = '';
+    let currentEmail = '';
+    let currentEmailUser = '';
+    let refreshTimer = null;
 
-    const timerRef = ref(db, 'system/expiryTime');
-    const emailRef = ref(db, 'userEmail');
-    const msgsRef = ref(db, 'messages');
-    const presenceRef = ref(db, 'system/presence');
-    const connectedRef = ref(db, '.info/connected');
+    // DOM elements
+    const emailDisplay = document.getElementById('emailDisplay');
+    const messagesContainer = document.getElementById('messagesContainer');
+    const inboxStatus = document.getElementById('inboxStatus');
+    const refreshBtn = document.getElementById('refreshBtn');
+    const newEmailBtn = document.getElementById('newEmailBtn');
+    const modal = document.getElementById('emailModal');
+    const modalSubject = document.getElementById('modalSubject');
+    const modalBody = document.getElementById('modalBody');
+    const closeModal = document.getElementById('closeModal');
 
-    const timerDisplay = document.getElementById('countdown-timer');
-    const emailDisplay = document.getElementById('email-display');
-    const messagesContainer = document.getElementById('messages');
-    const overlay = document.getElementById('expiry-overlay');
-    const userCountDisplay = document.getElementById('user-count');
+    // Close modal when clicking X or outside
+    closeModal.onclick = () => modal.style.display = 'none';
+    modal.onclick = (e) => { if (e.target === modal) modal.style.display = 'none'; };
 
-    // Presence Logic
-    onValue(connectedRef, (snap) => {
-      if (snap.val() === true) {
-        const con = push(presenceRef);
-        onDisconnect(con).remove();
-        set(con, true);
+    // Show loading state
+    function setLoading(isLoading) {
+      if (isLoading) {
+        inboxStatus.innerHTML = '<span class="loading"></span> Loading...';
+      } else {
+        inboxStatus.innerHTML = '✓ Auto-refreshing every 10s';
       }
-    });
+    }
 
-    onValue(presenceRef, (snap) => {
-      userCountDisplay.textContent = snap.size || 0;
-    });
+    // Generate a new email address
+    async function generateNewEmail() {
+      try {
+        setLoading(true);
+        const response = await fetch('https://api.guerrillamail.com/ajax.php?f=get_email_address');
+        const data = await response.json();
+        
+        currentSid = data.sid_token;
+        currentEmail = data.email_addr;
+        currentEmailUser = data.email_addr.split('@')[0];
+        
+        emailDisplay.textContent = currentEmail;
+        
+        // Clear inbox
+        messagesContainer.innerHTML = '<div class="empty-inbox">📭 No emails yet. Send a test message!</div>';
+        
+        // Fetch inbox for new email
+        await fetchInbox(true);
+        
+        // Reset auto-refresh
+        if (refreshTimer) clearInterval(refreshTimer);
+        refreshTimer = setInterval(() => fetchInbox(false), 10000);
+        
+        setLoading(false);
+      } catch (error) {
+        console.error('Error generating email:', error);
+        emailDisplay.textContent = 'Error - Refresh page';
+        setLoading(false);
+      }
+    }
 
-    // Timer Logic: Persistent and Real-time
-    onValue(timerRef, (snapshot) => {
-      let expiry = snapshot.val();
+    // Fetch inbox messages
+    async function fetchInbox(showLoading = false) {
+      if (!currentEmailUser) return;
       
-      if (!expiry) {
-        expiry = Date.now() + (24 * 60 * 60 * 1000);
-        set(timerRef, expiry);
-      }
-
-      if (window.tick) clearInterval(window.tick);
-
-      window.tick = setInterval(() => {
-        const now = Date.now();
-        const diff = expiry - now;
-
-        if (diff <= 0) {
-          clearInterval(window.tick);
-          timerDisplay.textContent = "Expired";
-          overlay.style.display = 'flex';
-          return;
+      try {
+        if (showLoading) setLoading(true);
+        
+        const url = `https://api.guerrillamail.com/ajax.php?f=get_email_list&offset=0&email_user=${currentEmailUser}&sid_token=${currentSid}`;
+        const response = await fetch(url);
+        const data = await response.json();
+        
+        if (data.list && data.list.length > 0) {
+          // Reverse so newest shows at top
+          const messages = [...data.list].reverse();
+          displayMessages(messages);
+          inboxStatus.innerHTML = `📬 ${messages.length} message${messages.length !== 1 ? 's' : ''}`;
+        } else {
+          messagesContainer.innerHTML = '<div class="empty-inbox">📭 No emails yet. Send a test message!</div>';
+          inboxStatus.innerHTML = '📭 Empty';
         }
+        
+        if (showLoading) setLoading(false);
+      } catch (error) {
+        console.error('Error fetching inbox:', error);
+        if (showLoading) {
+          messagesContainer.innerHTML = '<div class="empty-inbox">⚠️ Error loading inbox. Try refreshing.</div>';
+          setLoading(false);
+        }
+      }
+    }
 
-        const h = Math.floor(diff / 3600000).toString().padStart(2, '0');
-        const m = Math.floor((diff % 3600000) / 60000).toString().padStart(2, '0');
-        const s = Math.floor((diff % 60000) / 1000).toString().padStart(2, '0');
-        timerDisplay.textContent = `⏱️ ${h}:${m}:${s}`;
-      }, 1000);
-    });
-
-    onValue(emailRef, (snap) => {
-      emailDisplay.textContent = snap.val() || "waiting...";
-    });
-
-    onChildAdded(msgsRef, (snap) => {
-      const data = snap.val();
-      const msgCard = document.createElement('article');
-      msgCard.className = 'message';
-      const timeStr = data.timestamp ? new Date(data.timestamp).toLocaleString() : new Date().toLocaleString();
-
-      msgCard.innerHTML = `
-        <strong>${data.title || 'No Subject'}</strong>
-        <div class="message-content">${data.content || ''}</div>
-        <span class="message-time">📅 ${timeStr}</span>
-      `;
+    // Display messages in the inbox
+    function displayMessages(messages) {
+      if (!messages || messages.length === 0) {
+        messagesContainer.innerHTML = '<div class="empty-inbox">📭 No emails yet. Send a test message!</div>';
+        return;
+      }
       
-      const header = messagesContainer.querySelector('.inbox-header');
-      messagesContainer.insertBefore(msgCard, header.nextSibling);
-    });
+      messagesContainer.innerHTML = '';
+      
+      messages.forEach(msg => {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'message';
+        
+        const subject = msg.mail_subject || '(no subject)';
+        const preview = msg.mail_excerpt || (msg.mail_body ? msg.mail_body.substring(0, 100) : 'No content');
+        const from = msg.mail_from || 'Unknown sender';
+        const timestamp = msg.mail_timestamp ? new Date(msg.mail_timestamp * 1000).toLocaleString() : 'Unknown time';
+        
+        messageDiv.innerHTML = `
+          <div class="message-subject">📧 ${escapeHtml(subject)}</div>
+          <div class="message-preview">${escapeHtml(preview)}${preview.length >= 100 ? '...' : ''}</div>
+          <div class="message-meta">
+            <span>👤 ${escapeHtml(from)}</span>
+            <span>🕐 ${timestamp}</span>
+          </div>
+        `;
+        
+        // Store full email data
+        messageDiv.onclick = () => {
+          modalSubject.textContent = subject;
+          modalBody.innerHTML = `<strong>From:</strong> ${escapeHtml(from)}<br><br>${escapeHtml(msg.mail_body || 'No content')}`;
+          modal.style.display = 'flex';
+        };
+        
+        messagesContainer.appendChild(messageDiv);
+      });
+    }
 
-    emailDisplay.onclick = () => {
-      navigator.clipboard.writeText(emailDisplay.textContent);
-      const original = emailDisplay.textContent;
-      emailDisplay.textContent = "Copied!";
-      setTimeout(() => emailDisplay.textContent = original, 1000);
+    // Simple escape to prevent XSS
+    function escapeHtml(str) {
+      if (!str) return '';
+      return str.replace(/[&<>]/g, function(m) {
+        if (m === '&') return '&amp;';
+        if (m === '<') return '&lt;';
+        if (m === '>') return '&gt;';
+        return m;
+      });
+    }
+
+    // Copy email to clipboard
+    emailDisplay.onclick = async () => {
+      if (!currentEmail) return;
+      try {
+        await navigator.clipboard.writeText(currentEmail);
+        const original = emailDisplay.textContent;
+        emailDisplay.textContent = '✓ Copied!';
+        setTimeout(() => { emailDisplay.textContent = original; }, 1500);
+      } catch (err) {
+        // Fallback
+        const textarea = document.createElement('textarea');
+        textarea.value = currentEmail;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+        emailDisplay.textContent = '✓ Copied!';
+        setTimeout(() => { emailDisplay.textContent = currentEmail; }, 1500);
+      }
     };
+
+    // Button handlers
+    refreshBtn.onclick = () => fetchInbox(true);
+    newEmailBtn.onclick = () => generateNewEmail();
+
+    // Initialize
+    generateNewEmail();
   </script>
 </body>
 </html>
