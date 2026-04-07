@@ -1,57 +1,55 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Guerrilla Mail - Link Extractor</title>
+    <title>Guerrilla Mail - Full View Extractor</title>
     <style>
-        body { font-family: Arial; max-width: 800px; margin: 50px auto; padding: 20px; }
-        .container { background: white; padding: 20px; border-radius: 10px; }
-        button { padding: 10px 15px; font-size: 14px; background: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; margin: 5px; }
-        .email-card { border: 1px solid #ddd; margin: 15px 0; padding: 15px; border-radius: 8px; background: #fafafa; }
-        .subject { font-size: 18px; font-weight: bold; color: #333; }
-        .from { color: #666; font-size: 14px; margin: 5px 0; }
-        .code { background: #ffeb3b; padding: 10px; font-size: 28px; font-weight: bold; text-align: center; font-family: monospace; margin: 10px 0; border-radius: 5px; }
-        .links { background: #e3f2fd; padding: 10px; margin: 10px 0; border-radius: 5px; }
-        .links a { color: #2196F3; word-break: break-all; display: block; margin: 5px 0; }
-        .plain-text { background: white; padding: 10px; border-radius: 5px; white-space: pre-wrap; font-family: monospace; font-size: 12px; max-height: 200px; overflow-y: auto; display: none; }
-        .toggle-btn { background: #607d8b; font-size: 12px; }
-        .date { font-size: 12px; color: #999; margin-top: 10px; }
-        .email-badge { background: #e8f5e9; padding: 10px; border-radius: 5px; margin: 15px 0; }
-        input { padding: 10px; font-size: 16px; width: 200px; }
-        hr { margin: 20px 0; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 900px; margin: 30px auto; padding: 20px; background-color: #f4f7f6; }
+        .container { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        h1 { color: #2c3e50; text-align: center; }
+        .controls { display: flex; gap: 10px; margin-bottom: 20px; align-items: center; justify-content: center; }
+        button { padding: 12px 20px; font-size: 14px; background: #3498db; color: white; border: none; border-radius: 6px; cursor: pointer; transition: 0.3s; }
+        button:hover { background: #2980b9; }
+        .btn-refresh { background: #2ecc71; }
+        .btn-refresh:hover { background: #27ae60; }
+        .email-card { border: 1px solid #e0e0e0; margin: 20px 0; padding: 20px; border-radius: 10px; background: #fff; }
+        .subject { font-size: 20px; font-weight: bold; color: #2c3e50; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 10px; }
+        .from { color: #7f8c8d; font-size: 14px; margin-bottom: 15px; }
+        .email-content-wrapper { border: 1px solid #eee; padding: 15px; border-radius: 5px; background: #ffffff; overflow-x: auto; }
+        .code-box { background: #f1c40f; padding: 15px; font-size: 24px; font-weight: bold; text-align: center; margin: 15px 0; border-radius: 8px; color: #000; }
+        .email-badge { background: #ebf5fb; padding: 15px; border-radius: 8px; text-align: center; margin-bottom: 20px; border: 1px dashed #3498db; }
+        input { padding: 12px; font-size: 16px; border: 1px solid #ccc; border-radius: 6px; }
+        .date { font-size: 12px; color: #bdc3c7; margin-top: 15px; text-align: right; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>📧 Guerrilla Mail - Link Extractor</h1>
+        <h1>📧 Full Message Extractor</h1>
         
-        <div>
-            <input type="text" id="username" value="yaxjbbiq" style="width: 250px;">
+        <div class="controls">
+            <input type="text" id="username" value="yaxjbbiq">
             <span>@guerrillamailblock.com</span>
-            <button onclick="createEmail()">Create Inbox</button>
-            <button onclick="checkInbox()">🔄 Check Inbox</button>
+            <button onclick="createEmail()">Update Inbox</button>
+            <button class="btn-refresh" onclick="checkInbox()">🔄 Refresh Now</button>
         </div>
         
         <div id="currentEmail" style="display: none;">
             <div class="email-badge">
-                <strong>📫 Your email:</strong> <span id="emailAddress"></span>
-                <button onclick="copyEmail()">📋 Copy</button>
+                <strong>📫 Active Address:</strong> <span id="emailAddress"></span>
+                <button onclick="copyEmail()" style="padding: 5px 10px; margin-left: 10px; background: #95a5a6;">📋 Copy</button>
             </div>
         </div>
         
         <div id="inbox">
-            <p style="color: #999;">Create an email to see your inbox</p>
+            <p style="text-align: center; color: #95a5a6;">Initialising mailbox...</p>
         </div>
     </div>
 
     <script>
         let currentSidToken = null;
-        let currentEmail = null;
         const API_URL = 'https://api.guerrillamail.com/ajax.php';
 
         async function createEmail() {
             let username = document.getElementById('username').value.trim();
-            if (!username) username = Math.random().toString(36).substring(2, 12);
-            
             const domain = 'guerrillamailblock.com';
             
             try {
@@ -59,157 +57,77 @@
                 const data = await response.json();
                 
                 if (data && data.email_addr) {
-                    currentEmail = data.email_addr;
                     currentSidToken = data.sid_token;
-                    
-                    document.getElementById('emailAddress').textContent = currentEmail;
+                    document.getElementById('emailAddress').textContent = data.email_addr;
                     document.getElementById('currentEmail').style.display = 'block';
-                    
                     await checkInbox();
                 }
             } catch (error) {
-                document.getElementById('inbox').innerHTML = `<p style="color:red">Error: ${error.message}</p>`;
+                console.error(error);
             }
         }
         
-        // Extract ALL links from HTML
-        function extractLinks(html) {
-            const links = [];
-            const linkRegex = /<a[^>]+href=["'](https?:\/\/[^"']+)["'][^>]*>/gi;
-            let match;
-            while ((match = linkRegex.exec(html)) !== null) {
-                links.push(match[1]);
-            }
-            return links;
-        }
-        
-        // Extract verification code
         function extractCode(text) {
-            const patterns = [
-                /code is (\d{6})/i,
-                /code: (\d{6})/i,
-                /verification code: (\d{6})/i,
-                /(\d{6}) is your code/i,
-                /your verification code is (\d{6})/i
-            ];
+            const patterns = [/code is (\d{4,8})/i, /code: (\d{4,8})/i, /verification code:? (\d{4,8})/i, /(\d{4,8}) is your code/i];
             for (const pattern of patterns) {
                 const match = text.match(pattern);
                 if (match) return match[1];
             }
             return null;
         }
-        
-        // Extract plain text from HTML (remove all tags)
-        function htmlToText(html) {
-            if (!html) return '';
-            // Remove scripts and styles
-            let text = html.replace(/<style[^>]*>.*?<\/style>/gis, '');
-            text = text.replace(/<script[^>]*>.*?<\/script>/gis, '');
-            // Replace block elements with newlines
-            text = text.replace(/<\/(div|p|h1|h2|h3|h4|tr|li|table|section|article)>/gi, '\n');
-            text = text.replace(/<br\s*\/?>/gi, '\n');
-            // Remove all other HTML tags
-            text = text.replace(/<[^>]*>/g, '');
-            // Decode HTML entities
-            text = text.replace(/&nbsp;/g, ' ');
-            text = text.replace(/&amp;/g, '&');
-            text = text.replace(/&lt;/g, '<');
-            text = text.replace(/&gt;/g, '>');
-            // Clean up extra whitespace
-            text = text.replace(/\n\s*\n/g, '\n');
-            return text.trim();
-        }
-        
+
         async function checkInbox() {
-            if (!currentSidToken) {
-                alert('Create an email first');
-                return;
-            }
+            if (!currentSidToken) return;
             
             try {
                 const response = await fetch(`${API_URL}?f=get_email_list&offset=0&sid_token=${currentSidToken}`);
                 const data = await response.json();
                 
                 if (data && data.list && data.list.length > 0) {
-                    let html = '<h3>📥 Inbox</h3>';
+                    let html = '<h3>📥 Recent Messages</h3>';
                     
                     for (const email of data.list) {
-                        const bodyResponse = await fetch(`${API_URL}?f=fetch_email&email_id=${email.mail_id}&sid_token=${currentSidToken}`);
-                        const fullEmail = await bodyResponse.json();
+                        const bodyRes = await fetch(`${API_URL}?f=fetch_email&email_id=${email.mail_id}&sid_token=${currentSidToken}`);
+                        const fullEmail = await bodyRes.json();
                         
-                        const rawHtml = fullEmail.mail_body_html || '';
-                        const plainText = fullEmail.mail_body || htmlToText(rawHtml);
+                        // Use HTML body if available, otherwise use plain text
+                        const displayContent = fullEmail.mail_body_html || fullEmail.mail_body.replace(/\n/g, '<br>');
+                        const vCode = extractCode(fullEmail.mail_body);
                         
-                        const verificationCode = extractCode(plainText + rawHtml);
-                        const links = extractLinks(rawHtml);
+                        html += `
+                        <div class="email-card">
+                            <div class="subject">${email.mail_subject}</div>
+                            <div class="from">From: ${email.mail_from}</div>`;
                         
-                        // Generate HTML for this email
-                        html += `<div class="email-card">
-                            <div class="subject">📌 ${escapeHtml(email.mail_subject || '(no subject)')}</div>
-                            <div class="from">✉️ From: ${escapeHtml(email.mail_from || 'unknown')}</div>`;
-                        
-                        if (verificationCode) {
-                            html += `<div class="code">🔑 Verification Code: ${verificationCode}</div>`;
+                        if (vCode) {
+                            html += `<div class="code-box">🔑 Verification Code: ${vCode}</div>`;
                         }
-                        
-                        if (links.length > 0) {
-                            html += `<div class="links">
-                                <strong>🔗 Clickable Links (click to verify):</strong>`;
-                            for (const link of links) {
-                                html += `<a href="${escapeHtml(link)}" target="_blank">➡️ ${escapeHtml(link.substring(0, 80))}${link.length > 80 ? '...' : ''}</a>`;
-                            }
-                            html += `</div>`;
-                        }
-                        
-                        // Show clean text (no HTML)
-                        const cleanText = plainText.substring(0, 500);
-                        if (cleanText) {
-                            html += `<div class="plain-text" id="text-${email.mail_id}" style="display:none;">${escapeHtml(cleanText)}${plainText.length > 500 ? '...' : ''}</div>
-                                <button class="toggle-btn" onclick="toggleText('text-${email.mail_id}')">📄 Show/Hide Raw Text</button>`;
-                        }
-                        
-                        html += `<div class="date">🕐 ${new Date(email.mail_timestamp * 1000).toLocaleString()}</div>
+
+                        html += `
+                            <div class="email-content-wrapper">
+                                ${displayContent}
+                            </div>
+                            <div class="date">Received: ${email.mail_date}</div>
                         </div>`;
                     }
-                    
                     document.getElementById('inbox').innerHTML = html;
                 } else {
-                    document.getElementById('inbox').innerHTML = '<p>📭 No emails yet.</p>';
+                    document.getElementById('inbox').innerHTML = '<p style="text-align:center;">📭 Waiting for new messages...</p>';
                 }
             } catch (error) {
-                document.getElementById('inbox').innerHTML = `<p style="color:red">Error: ${error.message}</p>`;
+                document.getElementById('inbox').innerHTML = `<p style="color:red">Connection Error: ${error.message}</p>`;
             }
-        }
-        
-        function toggleText(id) {
-            const el = document.getElementById(id);
-            if (el.style.display === 'none') {
-                el.style.display = 'block';
-            } else {
-                el.style.display = 'none';
-            }
-        }
-        
-        function escapeHtml(text) {
-            if (!text) return '';
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
         }
         
         function copyEmail() {
             const email = document.getElementById('emailAddress').textContent;
             navigator.clipboard.writeText(email);
-            alert('Email copied!');
         }
         
-        // Auto-create and auto-refresh
-        window.addEventListener('load', () => {
+        window.onload = () => {
             createEmail();
-            setInterval(() => {
-                if (currentSidToken) checkInbox();
-            }, 10000);
-        });
+            setInterval(checkInbox, 10000); 
+        };
     </script>
 </body>
 </html>
