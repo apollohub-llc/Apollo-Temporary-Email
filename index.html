@@ -16,11 +16,7 @@
       --success: #22c55e;
     }
 
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -31,32 +27,21 @@
       padding: 1rem;
     }
 
-    .container {
-      max-width: 800px;
-      margin: 0 auto;
-    }
+    .container { max-width: 800px; margin: 0 auto; }
 
-    /* Header */
-    .header {
-      text-align: center;
-      margin-bottom: 2rem;
-    }
+    .header { text-align: center; margin-bottom: 2rem; }
 
     h1 {
       font-size: 3rem;
       background: linear-gradient(135deg, #ff8c00, #ffbd69, #ffa500);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      background-clip: text;
       margin-bottom: 0.5rem;
+      letter-spacing: -0.5px;
     }
 
-    .subtitle {
-      color: var(--text-muted);
-      font-size: 0.9rem;
-    }
+    .subtitle { color: var(--text-muted); font-size: 0.9rem; }
 
-    /* Email Display */
     .email-section {
       background: var(--card-bg);
       border-radius: 16px;
@@ -64,6 +49,7 @@
       margin-bottom: 2rem;
       border: 1px solid var(--border);
       backdrop-filter: blur(10px);
+      text-align: center;
     }
 
     .email-label {
@@ -81,32 +67,38 @@
       border-radius: 12px;
       font-size: 1.2rem;
       font-weight: 600;
-      font-family: monospace;
+      font-family: 'Monaco', 'Courier New', monospace;
       word-break: break-all;
       cursor: pointer;
       transition: all 0.2s;
       border: 1px solid transparent;
     }
 
-    .email-box:hover {
-      border-color: var(--primary);
-      background: rgba(255, 140, 0, 0.1);
-    }
+    .email-box:hover { border-color: var(--primary); background: rgba(255, 140, 0, 0.1); transform: translateY(-1px); }
 
-    .copy-hint {
-      font-size: 0.7rem;
-      color: var(--text-muted);
-      text-align: center;
-      margin-top: 0.5rem;
-    }
+    .copy-hint { font-size: 0.7rem; color: var(--text-muted); margin-top: 0.5rem; margin-bottom: 1rem; }
 
-    /* Controls */
-    .controls {
+    .api-selector-container {
       display: flex;
-      gap: 1rem;
-      margin-bottom: 1.5rem;
+      align-items: center;
       justify-content: center;
+      gap: 10px;
+      padding-top: 10px;
+      border-top: 1px solid rgba(255,255,255,0.05);
     }
+
+    select {
+      background: #0f172a;
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 5px 10px;
+      border-radius: 5px;
+      outline: none;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+
+    .controls { display: flex; gap: 1rem; margin-bottom: 1.5rem; justify-content: center; }
 
     button {
       background: var(--primary);
@@ -120,17 +112,10 @@
       font-size: 0.9rem;
     }
 
-    button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 5px 15px var(--primary-glow);
-    }
+    button:hover { transform: translateY(-2px); box-shadow: 0 5px 15px var(--primary-glow); }
 
-    .refresh-btn {
-      background: rgba(255, 255, 255, 0.1);
-      color: var(--text);
-    }
+    .refresh-btn { background: rgba(255, 255, 255, 0.1); color: var(--text); }
 
-    /* Inbox */
     .inbox {
       background: var(--card-bg);
       border-radius: 16px;
@@ -147,18 +132,10 @@
       justify-content: space-between;
       align-items: center;
       flex-wrap: wrap;
-      gap: 0.5rem;
+      gap: 10px;
     }
 
-    .inbox-header h2 {
-      font-size: 1.2rem;
-      color: var(--primary);
-    }
-
-    .status {
-      font-size: 0.8rem;
-      color: var(--text-muted);
-    }
+    .status { font-size: 0.8rem; color: var(--text-muted); }
 
     .message {
       padding: 1rem 1.5rem;
@@ -167,43 +144,20 @@
       cursor: pointer;
     }
 
-    .message:hover {
-      background: rgba(255, 140, 0, 0.05);
-    }
+    .message:hover { background: rgba(255, 140, 0, 0.05); transform: translateX(4px); }
 
-    .message-subject {
-      font-weight: 700;
-      color: var(--text);
-      margin-bottom: 0.3rem;
-    }
+    .message-subject { font-weight: 700; color: var(--text); margin-bottom: 0.3rem; font-size: 1rem; }
 
-    .message-preview {
-      font-size: 0.85rem;
-      color: var(--text-muted);
-      margin-bottom: 0.3rem;
-    }
+    .message-preview { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.3rem; }
 
-    .message-meta {
-      display: flex;
-      gap: 1rem;
-      font-size: 0.7rem;
-      color: var(--primary);
-    }
+    .message-meta { display: flex; gap: 1rem; font-size: 0.7rem; color: var(--primary); }
 
-    .empty-inbox {
-      padding: 3rem;
-      text-align: center;
-      color: var(--text-muted);
-    }
+    .empty-inbox { padding: 3rem; text-align: center; color: var(--text-muted); }
 
-    /* Modal for full email */
     .modal {
       display: none;
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
+      top: 0; left: 0; width: 100%; height: 100%;
       background: rgba(0, 0, 0, 0.95);
       z-index: 1000;
       justify-content: center;
@@ -212,12 +166,12 @@
     }
 
     .modal-content {
-      background: var(--card-bg);
+      background: #1e293b;
       border: 1px solid var(--border);
       border-radius: 16px;
-      max-width: 600px;
+      max-width: 700px;
       width: 100%;
-      max-height: 80vh;
+      max-height: 85vh;
       overflow-y: auto;
       padding: 1.5rem;
     }
@@ -227,35 +181,50 @@
       justify-content: space-between;
       align-items: center;
       margin-bottom: 1rem;
-      padding-bottom: 0.5rem;
       border-bottom: 1px solid var(--border);
+      padding-bottom: 10px;
     }
 
-    .close-modal {
-      background: none;
-      font-size: 1.5rem;
-      padding: 0;
-      color: var(--text);
-    }
+    .close-modal { background: none; font-size: 1.5rem; color: var(--text); padding: 0; margin: 0; }
 
-    .modal-body {
-      line-height: 1.6;
-      white-space: pre-wrap;
-      word-wrap: break-word;
-    }
+    .close-modal:hover { transform: none; box-shadow: none; }
 
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
+    .modal-body { line-height: 1.6; white-space: pre-wrap; word-wrap: break-word; }
 
+    @keyframes spin { to { transform: rotate(360deg); } }
     .loading {
       display: inline-block;
-      width: 16px;
-      height: 16px;
+      width: 14px;
+      height: 14px;
       border: 2px solid var(--primary);
       border-top-color: transparent;
       border-radius: 50%;
       animation: spin 0.6s linear infinite;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: var(--success);
+      color: #000;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      animation: slideIn 0.3s ease-out;
+      z-index: 1001;
+    }
+
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    @media (max-width: 640px) {
+      h1 { font-size: 2rem; }
+      .email-box { font-size: 0.9rem; }
+      .message { padding: 0.75rem 1rem; }
     }
   </style>
 </head>
@@ -270,6 +239,14 @@
       <span class="email-label">📧 YOUR TEMPORARY EMAIL</span>
       <div class="email-box" id="emailDisplay">Loading...</div>
       <div class="copy-hint">✨ Click to copy</div>
+      
+      <div class="api-selector-container">
+        <label for="apiSelect" style="font-size: 0.8rem; color: var(--text-muted);">Provider:</label>
+        <select id="apiSelect">
+          <option value="mailtm">Mail.tm (Recommended)</option>
+          <option value="guerrilla">Guerrilla Mail</option>
+        </select>
+      </div>
     </div>
 
     <div class="controls">
@@ -280,192 +257,377 @@
     <div class="inbox">
       <div class="inbox-header">
         <h2>📬 Inbox</h2>
-        <span class="status" id="inboxStatus">Waiting for emails...</span>
+        <span class="status" id="inboxStatus">Ready</span>
       </div>
       <div id="messagesContainer">
-        <div class="empty-inbox">📭 No emails yet. Send a test message!</div>
+        <div class="empty-inbox">📭 No emails yet.</div>
       </div>
     </div>
   </div>
 
-  <!-- Modal for full email -->
   <div id="emailModal" class="modal">
     <div class="modal-content">
       <div class="modal-header">
-        <strong id="modalSubject">Subject</strong>
+        <strong id="modalSubject">Message</strong>
         <button class="close-modal" id="closeModal">✕</button>
       </div>
-      <div class="modal-body" id="modalBody"></div>
+      <div class="modal-body" id="modalBody">Loading...</div>
     </div>
   </div>
 
   <script>
-    let currentSid = '';
+    // State management
+    let currentProvider = 'mailtm';
     let currentEmail = '';
-    let currentEmailUser = '';
     let refreshTimer = null;
+    
+    // Mail.tm specific state
+    let mailTmToken = '';
+    let mailTmAccount = null;
+    
+    // Guerrilla Mail specific state
+    let guerrillaSid = '';
+    let guerrillaUser = '';
 
-    // DOM elements
+    // DOM Elements
     const emailDisplay = document.getElementById('emailDisplay');
     const messagesContainer = document.getElementById('messagesContainer');
     const inboxStatus = document.getElementById('inboxStatus');
-    const refreshBtn = document.getElementById('refreshBtn');
-    const newEmailBtn = document.getElementById('newEmailBtn');
+    const apiSelect = document.getElementById('apiSelect');
     const modal = document.getElementById('emailModal');
     const modalSubject = document.getElementById('modalSubject');
     const modalBody = document.getElementById('modalBody');
-    const closeModal = document.getElementById('closeModal');
 
-    // Close modal when clicking X or outside
-    closeModal.onclick = () => modal.style.display = 'none';
-    modal.onclick = (e) => { if (e.target === modal) modal.style.display = 'none'; };
-
-    // Show loading state
-    function setLoading(isLoading) {
-      if (isLoading) {
-        inboxStatus.innerHTML = '<span class="loading"></span> Loading...';
-      } else {
-        inboxStatus.innerHTML = '✓ Auto-refreshing every 10s';
-      }
+    // Helper: Show temporary notification
+    function showToast(message, isError = false) {
+      const toast = document.createElement('div');
+      toast.className = 'toast';
+      toast.style.background = isError ? '#dc2626' : '#22c55e';
+      toast.style.color = 'white';
+      toast.textContent = message;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 3000);
     }
 
-    // Generate a new email address
-    async function generateNewEmail() {
+    // ==================== MAIL.TM PROVIDER ====================
+    async function generateMailTmEmail() {
       try {
-        setLoading(true);
-        const response = await fetch('https://api.guerrillamail.com/ajax.php?f=get_email_address');
-        const data = await response.json();
+        inboxStatus.innerHTML = '<span class="loading"></span> Creating account...';
         
-        currentSid = data.sid_token;
-        currentEmail = data.email_addr;
-        currentEmailUser = data.email_addr.split('@')[0];
+        // Step 1: Get available domains
+        const domainsRes = await fetch('https://api.mail.tm/domains');
+        const domains = await domainsRes.json();
+        const domain = domains['hydra:member'][0].domain;
+        
+        // Step 2: Generate random email address
+        const randomName = Math.random().toString(36).substring(2, 15) + Math.floor(Math.random() * 1000);
+        const email = `${randomName}@${domain}`;
+        const password = Math.random().toString(36).substring(2, 20);
+        
+        // Step 3: Create account
+        const createRes = await fetch('https://api.mail.tm/accounts', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            address: email,
+            password: password
+          })
+        });
+        
+        if (!createRes.ok) throw new Error('Failed to create account');
+        
+        // Step 4: Login to get token
+        const loginRes = await fetch('https://api.mail.tm/token', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            address: email,
+            password: password
+          })
+        });
+        
+        if (!loginRes.ok) throw new Error('Failed to login');
+        
+        const loginData = await loginRes.json();
+        mailTmToken = loginData.token;
+        currentEmail = email;
+        mailTmAccount = email;
         
         emailDisplay.textContent = currentEmail;
         
-        // Clear inbox
-        messagesContainer.innerHTML = '<div class="empty-inbox">📭 No emails yet. Send a test message!</div>';
+        // Step 5: Fetch inbox
+        await fetchMailTmInbox();
+        startAutoRefresh();
+        showToast('✅ Mail.tm email created!');
+        inboxStatus.textContent = '📬 Empty';
         
-        // Fetch inbox for new email
-        await fetchInbox(true);
-        
-        // Reset auto-refresh
-        if (refreshTimer) clearInterval(refreshTimer);
-        refreshTimer = setInterval(() => fetchInbox(false), 10000);
-        
-        setLoading(false);
       } catch (error) {
-        console.error('Error generating email:', error);
-        emailDisplay.textContent = 'Error - Refresh page';
-        setLoading(false);
+        console.error('Mail.tm generation error:', error);
+        emailDisplay.textContent = 'Error: Mail.tm failed';
+        inboxStatus.textContent = '⚠️ Error';
+        showToast('❌ Mail.tm failed to generate email', true);
       }
     }
 
-    // Fetch inbox messages
-    async function fetchInbox(showLoading = false) {
-      if (!currentEmailUser) return;
+    async function fetchMailTmInbox() {
+      if (!mailTmToken) return false;
       
       try {
-        if (showLoading) setLoading(true);
+        const response = await fetch('https://api.mail.tm/messages', {
+          headers: {
+            'Authorization': `Bearer ${mailTmToken}`
+          }
+        });
         
-        const url = `https://api.guerrillamail.com/ajax.php?f=get_email_list&offset=0&email_user=${currentEmailUser}&sid_token=${currentSid}`;
-        const response = await fetch(url);
         const data = await response.json();
+        const messages = data['hydra:member'] || [];
         
-        if (data.list && data.list.length > 0) {
-          // Reverse so newest shows at top
-          const messages = [...data.list].reverse();
-          displayMessages(messages);
-          inboxStatus.innerHTML = `📬 ${messages.length} message${messages.length !== 1 ? 's' : ''}`;
-        } else {
-          messagesContainer.innerHTML = '<div class="empty-inbox">📭 No emails yet. Send a test message!</div>';
-          inboxStatus.innerHTML = '📭 Empty';
-        }
+        renderMessages(messages.map(msg => ({
+          id: msg.id,
+          from: msg.from?.address || 'Unknown',
+          subject: msg.subject || '(No Subject)',
+          date: new Date(msg.createdAt).toLocaleString(),
+          preview: msg.intro || 'Click to read full message...',
+          body: null,
+          provider: 'mailtm'
+        })));
         
-        if (showLoading) setLoading(false);
+        inboxStatus.textContent = messages.length > 0 ? `📬 ${messages.length} message(s)` : '📭 Empty';
+        return true;
       } catch (error) {
-        console.error('Error fetching inbox:', error);
-        if (showLoading) {
-          messagesContainer.innerHTML = '<div class="empty-inbox">⚠️ Error loading inbox. Try refreshing.</div>';
-          setLoading(false);
-        }
+        console.error('Error fetching Mail.tm inbox:', error);
+        inboxStatus.textContent = '⚠️ API Error';
+        return false;
       }
     }
 
-    // Display messages in the inbox
-    function displayMessages(messages) {
+    async function openMailTmMessage(messageId) {
+      try {
+        const response = await fetch(`https://api.mail.tm/messages/${messageId}`, {
+          headers: {
+            'Authorization': `Bearer ${mailTmToken}`
+          }
+        });
+        const fullMsg = await response.json();
+        const bodyContent = fullMsg.html?.[0] || fullMsg.text || 'No content available';
+        
+        modalBody.innerHTML = `
+          <div style="margin-bottom: 15px;">
+            <strong>From:</strong> ${escapeHtml(fullMsg.from?.address || 'Unknown')}<br>
+            <strong>Date:</strong> ${new Date(fullMsg.createdAt).toLocaleString()}
+          </div>
+          <hr style="margin: 15px 0; border: 0; border-top: 1px solid #334155;">
+          <div style="line-height: 1.6;">
+            ${escapeHtml(bodyContent).replace(/\n/g, '<br>')}
+          </div>
+        `;
+      } catch (error) {
+        console.error('Error loading Mail.tm message:', error);
+        modalBody.innerHTML = '<div style="color: #dc2626;">❌ Failed to load message content.</div>';
+      }
+    }
+
+    // ==================== GUERRILLA MAIL PROVIDER ====================
+    async function generateGuerrillaEmail() {
+      try {
+        inboxStatus.innerHTML = '<span class="loading"></span> Creating email...';
+        
+        const res = await fetch('https://api.guerrillamail.com/ajax.php?f=get_email_address');
+        const data = await res.json();
+        
+        guerrillaSid = data.sid_token;
+        currentEmail = data.email_addr;
+        guerrillaUser = currentEmail.split('@')[0];
+        
+        emailDisplay.textContent = currentEmail;
+        
+        await fetchGuerrillaInbox();
+        startAutoRefresh();
+        showToast('✅ Guerrilla Mail email created!');
+        inboxStatus.textContent = '📬 Empty';
+        
+      } catch (error) {
+        console.error('Guerrilla generation error:', error);
+        emailDisplay.textContent = 'Error: Guerrilla failed';
+        inboxStatus.textContent = '⚠️ Error';
+        showToast('❌ Guerrilla Mail failed to generate email', true);
+      }
+    }
+
+    async function fetchGuerrillaInbox() {
+      if (!guerrillaUser) return false;
+      
+      try {
+        const res = await fetch(`https://api.guerrillamail.com/ajax.php?f=get_email_list&offset=0&email_user=${guerrillaUser}&sid_token=${guerrillaSid}`);
+        const data = await res.json();
+        
+        const messages = (data.list || []).map(m => ({
+          id: m.mail_id,
+          from: m.mail_from,
+          subject: m.mail_subject,
+          date: new Date(m.mail_timestamp * 1000).toLocaleString(),
+          preview: m.mail_excerpt || '',
+          body: m.mail_body || '',
+          provider: 'guerrilla'
+        }));
+        
+        renderMessages(messages);
+        inboxStatus.textContent = messages.length > 0 ? `📬 ${messages.length} message(s)` : '📭 Empty';
+        return true;
+      } catch (error) {
+        console.error('Error fetching Guerrilla inbox:', error);
+        inboxStatus.textContent = '⚠️ API Error';
+        return false;
+      }
+    }
+
+    async function openGuerrillaMessage(messageId) {
+      try {
+        const res = await fetch(`https://api.guerrillamail.com/ajax.php?f=fetch_email&email_id=${messageId}&sid_token=${guerrillaSid}`);
+        const data = await res.json();
+        
+        modalBody.innerHTML = `
+          <div style="margin-bottom: 15px;">
+            <strong>From:</strong> ${escapeHtml(data.mail_from || 'Unknown')}<br>
+            <strong>Date:</strong> ${new Date(data.mail_timestamp * 1000).toLocaleString()}
+          </div>
+          <hr style="margin: 15px 0; border: 0; border-top: 1px solid #334155;">
+          <div style="line-height: 1.6;">
+            ${escapeHtml(data.mail_body || 'No content available').replace(/\n/g, '<br>')}
+          </div>
+        `;
+      } catch (error) {
+        console.error('Error loading Guerrilla message:', error);
+        modalBody.innerHTML = '<div style="color: #dc2626;">❌ Failed to load message content.</div>';
+      }
+    }
+
+    // ==================== MAIN CONTROLLER ====================
+    async function generateNewEmail() {
+      // Clear any existing timer
+      if (refreshTimer) {
+        clearInterval(refreshTimer);
+        refreshTimer = null;
+      }
+      
+      // Reset state based on selected provider
+      currentProvider = apiSelect.value;
+      
+      if (currentProvider === 'mailtm') {
+        // Reset Mail.tm state
+        mailTmToken = '';
+        mailTmAccount = null;
+        await generateMailTmEmail();
+      } else {
+        // Reset Guerrilla state
+        guerrillaSid = '';
+        guerrillaUser = '';
+        await generateGuerrillaEmail();
+      }
+    }
+
+    async function fetchInbox(showToastMsg = false) {
+      if (!currentEmail) return;
+      
+      if (showToastMsg) {
+        inboxStatus.innerHTML = '<span class="loading"></span> Fetching...';
+      }
+      
+      try {
+        let success = false;
+        
+        if (currentProvider === 'mailtm' && mailTmToken) {
+          success = await fetchMailTmInbox();
+        } else if (currentProvider === 'guerrilla' && guerrillaUser) {
+          success = await fetchGuerrillaInbox();
+        }
+        
+        if (showToastMsg && success) showToast('🔄 Inbox refreshed');
+      } catch (error) {
+        console.error('Fetch error:', error);
+        if (showToastMsg) showToast('❌ Refresh failed', true);
+      }
+    }
+
+    async function openMessage(message) {
+      modalSubject.textContent = message.subject || '(No Subject)';
+      modalBody.innerHTML = '<div class="loading"></div> Loading message...';
+      modal.style.display = 'flex';
+      
+      if (message.provider === 'mailtm') {
+        await openMailTmMessage(message.id);
+      } else if (message.provider === 'guerrilla') {
+        await openGuerrillaMessage(message.id);
+      }
+    }
+
+    function renderMessages(messages) {
       if (!messages || messages.length === 0) {
-        messagesContainer.innerHTML = '<div class="empty-inbox">📭 No emails yet. Send a test message!</div>';
+        messagesContainer.innerHTML = '<div class="empty-inbox">📭 No emails yet.<br><span style="font-size: 0.8rem;">Waiting for new messages...</span></div>';
         return;
       }
       
       messagesContainer.innerHTML = '';
-      
       messages.forEach(msg => {
-        const messageDiv = document.createElement('div');
-        messageDiv.className = 'message';
-        
-        const subject = msg.mail_subject || '(no subject)';
-        const preview = msg.mail_excerpt || (msg.mail_body ? msg.mail_body.substring(0, 100) : 'No content');
-        const from = msg.mail_from || 'Unknown sender';
-        const timestamp = msg.mail_timestamp ? new Date(msg.mail_timestamp * 1000).toLocaleString() : 'Unknown time';
-        
-        messageDiv.innerHTML = `
-          <div class="message-subject">📧 ${escapeHtml(subject)}</div>
-          <div class="message-preview">${escapeHtml(preview)}${preview.length >= 100 ? '...' : ''}</div>
-          <div class="message-meta">
-            <span>👤 ${escapeHtml(from)}</span>
-            <span>🕐 ${timestamp}</span>
-          </div>
+        const div = document.createElement('div');
+        div.className = 'message';
+        div.innerHTML = `
+          <div class="message-subject">📧 ${escapeHtml(msg.subject || '(No Subject)')}</div>
+          <div class="message-preview">${escapeHtml(msg.preview || 'Click to read full message...')}</div>
+          <div class="message-meta"><span>👤 ${escapeHtml(msg.from || 'Unknown Sender')}</span><span>🕐 ${msg.date || 'Just now'}</span></div>
         `;
-        
-        // Store full email data
-        messageDiv.onclick = () => {
-          modalSubject.textContent = subject;
-          modalBody.innerHTML = `<strong>From:</strong> ${escapeHtml(from)}<br><br>${escapeHtml(msg.mail_body || 'No content')}`;
-          modal.style.display = 'flex';
-        };
-        
-        messagesContainer.appendChild(messageDiv);
+        div.onclick = () => openMessage(msg);
+        messagesContainer.appendChild(div);
       });
     }
 
-    // Simple escape to prevent XSS
+    function startAutoRefresh() {
+      if (refreshTimer) clearInterval(refreshTimer);
+      refreshTimer = setInterval(() => fetchInbox(false), 8000);
+    }
+
     function escapeHtml(str) {
       if (!str) return '';
-      return str.replace(/[&<>]/g, function(m) {
-        if (m === '&') return '&amp;';
-        if (m === '<') return '&lt;';
-        if (m === '>') return '&gt;';
-        return m;
-      });
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
     }
 
-    // Copy email to clipboard
-    emailDisplay.onclick = async () => {
-      if (!currentEmail) return;
+    async function copyEmail() {
+      if (!currentEmail) {
+        showToast('No email to copy', true);
+        return;
+      }
+      
       try {
         await navigator.clipboard.writeText(currentEmail);
         const original = emailDisplay.textContent;
         emailDisplay.textContent = '✓ Copied!';
-        setTimeout(() => { emailDisplay.textContent = original; }, 1500);
+        setTimeout(() => emailDisplay.textContent = original, 1200);
+        showToast('📋 Email copied!');
       } catch (err) {
-        // Fallback
-        const textarea = document.createElement('textarea');
-        textarea.value = currentEmail;
-        document.body.appendChild(textarea);
-        textarea.select();
-        document.execCommand('copy');
-        document.body.removeChild(textarea);
-        emailDisplay.textContent = '✓ Copied!';
-        setTimeout(() => { emailDisplay.textContent = currentEmail; }, 1500);
+        showToast('Failed to copy', true);
       }
-    };
+    }
 
-    // Button handlers
-    refreshBtn.onclick = () => fetchInbox(true);
-    newEmailBtn.onclick = () => generateNewEmail();
-
-    // Initialize
+    // Event Listeners
+    apiSelect.addEventListener('change', () => {
+      generateNewEmail();
+    });
+    
+    document.getElementById('refreshBtn').addEventListener('click', () => fetchInbox(true));
+    document.getElementById('newEmailBtn').addEventListener('click', generateNewEmail);
+    document.getElementById('closeModal').addEventListener('click', () => modal.style.display = 'none');
+    emailDisplay.addEventListener('click', copyEmail);
+    
+    window.addEventListener('click', (e) => {
+      if (e.target === modal) modal.style.display = 'none';
+    });
+    
+    // Initialize with Mail.tm
     generateNewEmail();
   </script>
 </body>
