@@ -1,36 +1,40 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Guerrilla Mail - Clean Inbox</title>
+    <title>Guerrilla Mail - Link Extractor</title>
     <style>
         body { font-family: Arial; max-width: 800px; margin: 50px auto; padding: 20px; }
         .container { background: white; padding: 20px; border-radius: 10px; }
-        input, button { padding: 10px; font-size: 16px; }
-        button { background: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; margin-left: 10px; }
+        button { padding: 10px 15px; font-size: 14px; background: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; margin: 5px; }
         .email-card { border: 1px solid #ddd; margin: 15px 0; padding: 15px; border-radius: 8px; background: #fafafa; }
         .subject { font-size: 18px; font-weight: bold; color: #333; }
         .from { color: #666; font-size: 14px; margin: 5px 0; }
-        .code { background: #f0f0f0; padding: 10px; font-size: 24px; font-weight: bold; text-align: center; font-family: monospace; margin: 10px 0; border-radius: 5px; }
-        .body { margin-top: 12px; padding: 10px; background: white; border-radius: 5px; white-space: pre-wrap; }
+        .code { background: #ffeb3b; padding: 10px; font-size: 28px; font-weight: bold; text-align: center; font-family: monospace; margin: 10px 0; border-radius: 5px; }
+        .links { background: #e3f2fd; padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .links a { color: #2196F3; word-break: break-all; display: block; margin: 5px 0; }
+        .plain-text { background: white; padding: 10px; border-radius: 5px; white-space: pre-wrap; font-family: monospace; font-size: 12px; max-height: 200px; overflow-y: auto; display: none; }
+        .toggle-btn { background: #607d8b; font-size: 12px; }
         .date { font-size: 12px; color: #999; margin-top: 10px; }
-        .email-badge { background: #e8f5e9; padding: 10px; border-radius: 5px; margin: 15px 0; font-family: monospace; }
+        .email-badge { background: #e8f5e9; padding: 10px; border-radius: 5px; margin: 15px 0; }
+        input { padding: 10px; font-size: 16px; width: 200px; }
+        hr { margin: 20px 0; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>📧 Guerrilla Mail - Clean Inbox</h1>
+        <h1>📧 Guerrilla Mail - Link Extractor</h1>
         
         <div>
-            <input type="text" id="username" value="eqskwiqu" style="width: 250px;">
+            <input type="text" id="username" value="yaxjbbiq" style="width: 250px;">
             <span>@guerrillamailblock.com</span>
             <button onclick="createEmail()">Create Inbox</button>
-            <button onclick="checkInbox()" id="refreshBtn">🔄 Check Inbox</button>
+            <button onclick="checkInbox()">🔄 Check Inbox</button>
         </div>
         
         <div id="currentEmail" style="display: none;">
             <div class="email-badge">
                 <strong>📫 Your email:</strong> <span id="emailAddress"></span>
-                <button onclick="copyEmail()" style="margin-left: 15px;">📋 Copy</button>
+                <button onclick="copyEmail()">📋 Copy</button>
             </div>
         </div>
         
@@ -49,7 +53,6 @@
             if (!username) username = Math.random().toString(36).substring(2, 12);
             
             const domain = 'guerrillamailblock.com';
-            const email = `${username}@${domain}`;
             
             try {
                 const response = await fetch(`${API_URL}?f=set_email_user&email_user=${username}&site=guerrillamail.com&domain=${domain}`);
@@ -69,20 +72,26 @@
             }
         }
         
-        // Extract verification code from email content
+        // Extract ALL links from HTML
+        function extractLinks(html) {
+            const links = [];
+            const linkRegex = /<a[^>]+href=["'](https?:\/\/[^"']+)["'][^>]*>/gi;
+            let match;
+            while ((match = linkRegex.exec(html)) !== null) {
+                links.push(match[1]);
+            }
+            return links;
+        }
+        
+        // Extract verification code
         function extractCode(text) {
-            // Look for patterns like "code is 123456" or "verification code: 123456"
             const patterns = [
                 /code is (\d{6})/i,
                 /code: (\d{6})/i,
                 /verification code: (\d{6})/i,
-                /verification code is (\d{6})/i,
                 /(\d{6}) is your code/i,
-                /your verification code is (\d{6})/i,
-                /your code is (\d{6})/i,
-                /(\d{6})/  // Any 6-digit number as fallback
+                /your verification code is (\d{6})/i
             ];
-            
             for (const pattern of patterns) {
                 const match = text.match(pattern);
                 if (match) return match[1];
@@ -90,16 +99,15 @@
             return null;
         }
         
-        // Clean HTML to plain text
-        function cleanHtml(html) {
+        // Extract plain text from HTML (remove all tags)
+        function htmlToText(html) {
             if (!html) return '';
-            // Remove style tags and their contents
+            // Remove scripts and styles
             let text = html.replace(/<style[^>]*>.*?<\/style>/gis, '');
-            // Remove script tags
             text = text.replace(/<script[^>]*>.*?<\/script>/gis, '');
-            // Replace <br> and <div> with newlines
+            // Replace block elements with newlines
+            text = text.replace(/<\/(div|p|h1|h2|h3|h4|tr|li|table|section|article)>/gi, '\n');
             text = text.replace(/<br\s*\/?>/gi, '\n');
-            text = text.replace(/<\/div>/gi, '\n');
             // Remove all other HTML tags
             text = text.replace(/<[^>]*>/g, '');
             // Decode HTML entities
@@ -107,7 +115,7 @@
             text = text.replace(/&amp;/g, '&');
             text = text.replace(/&lt;/g, '<');
             text = text.replace(/&gt;/g, '>');
-            // Remove extra whitespace
+            // Clean up extra whitespace
             text = text.replace(/\n\s*\n/g, '\n');
             return text.trim();
         }
@@ -126,30 +134,42 @@
                     let html = '<h3>📥 Inbox</h3>';
                     
                     for (const email of data.list) {
-                        // Fetch full email
                         const bodyResponse = await fetch(`${API_URL}?f=fetch_email&email_id=${email.mail_id}&sid_token=${currentSidToken}`);
                         const fullEmail = await bodyResponse.json();
                         
-                        // Get clean text from HTML or plain text
-                        let rawText = '';
-                        if (fullEmail.mail_body_html) {
-                            rawText = cleanHtml(fullEmail.mail_body_html);
-                        } else if (fullEmail.mail_body) {
-                            rawText = fullEmail.mail_body;
+                        const rawHtml = fullEmail.mail_body_html || '';
+                        const plainText = fullEmail.mail_body || htmlToText(rawHtml);
+                        
+                        const verificationCode = extractCode(plainText + rawHtml);
+                        const links = extractLinks(rawHtml);
+                        
+                        // Generate HTML for this email
+                        html += `<div class="email-card">
+                            <div class="subject">📌 ${escapeHtml(email.mail_subject || '(no subject)')}</div>
+                            <div class="from">✉️ From: ${escapeHtml(email.mail_from || 'unknown')}</div>`;
+                        
+                        if (verificationCode) {
+                            html += `<div class="code">🔑 Verification Code: ${verificationCode}</div>`;
                         }
                         
-                        // Extract verification code
-                        const code = extractCode(rawText);
+                        if (links.length > 0) {
+                            html += `<div class="links">
+                                <strong>🔗 Clickable Links (click to verify):</strong>`;
+                            for (const link of links) {
+                                html += `<a href="${escapeHtml(link)}" target="_blank">➡️ ${escapeHtml(link.substring(0, 80))}${link.length > 80 ? '...' : ''}</a>`;
+                            }
+                            html += `</div>`;
+                        }
                         
-                        html += `
-                            <div class="email-card">
-                                <div class="subject">📌 ${escapeHtml(email.mail_subject || '(no subject)')}</div>
-                                <div class="from">✉️ From: ${escapeHtml(email.mail_from || 'unknown')}</div>
-                                ${code ? `<div class="code">🔑 Verification Code: ${code}</div>` : ''}
-                                <div class="body">${escapeHtml(rawText.substring(0, 500))}${rawText.length > 500 ? '...' : ''}</div>
-                                <div class="date">🕐 ${new Date(email.mail_timestamp * 1000).toLocaleString()}</div>
-                            </div>
-                        `;
+                        // Show clean text (no HTML)
+                        const cleanText = plainText.substring(0, 500);
+                        if (cleanText) {
+                            html += `<div class="plain-text" id="text-${email.mail_id}" style="display:none;">${escapeHtml(cleanText)}${plainText.length > 500 ? '...' : ''}</div>
+                                <button class="toggle-btn" onclick="toggleText('text-${email.mail_id}')">📄 Show/Hide Raw Text</button>`;
+                        }
+                        
+                        html += `<div class="date">🕐 ${new Date(email.mail_timestamp * 1000).toLocaleString()}</div>
+                        </div>`;
                     }
                     
                     document.getElementById('inbox').innerHTML = html;
@@ -158,6 +178,15 @@
                 }
             } catch (error) {
                 document.getElementById('inbox').innerHTML = `<p style="color:red">Error: ${error.message}</p>`;
+            }
+        }
+        
+        function toggleText(id) {
+            const el = document.getElementById(id);
+            if (el.style.display === 'none') {
+                el.style.display = 'block';
+            } else {
+                el.style.display = 'none';
             }
         }
         
@@ -174,10 +203,9 @@
             alert('Email copied!');
         }
         
-        // Auto-create on load
+        // Auto-create and auto-refresh
         window.addEventListener('load', () => {
             createEmail();
-            // Auto-refresh every 10 seconds
             setInterval(() => {
                 if (currentSidToken) checkInbox();
             }, 10000);
